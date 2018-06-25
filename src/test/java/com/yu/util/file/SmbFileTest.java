@@ -1,13 +1,13 @@
 package com.yu.util.file;
 
-import jcifs.smb.SmbException;
+import com.yu.util.xml.SingleHtmlResolver;
 import jcifs.smb.SmbFile;
+import org.jsoup.HttpStatusException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.io.File;
-import java.net.MalformedURLException;
+import static com.yu.util.file.FileUtil.removeStr;
 
 @RunWith(SpringRunner.class)
 public class SmbFileTest {
@@ -18,32 +18,44 @@ public class SmbFileTest {
     }
 
     @Test
-    public void testMove() throws Exception {
+    public void testMove2Base() throws Exception {
         SmbFileResolver fileResolver = new SmbFileResolver("/Multimedia/01_Asia/02_合集");
         fileResolver.moveAll2BaseDir();
     }
 
     @Test
-    public void test2() throws Exception {
-        SmbFileResolver fileResolver = new SmbFileResolver("/Multimedia/01_Asia/02_合集");
+    public void testRename() throws Exception {
+        SmbFileResolver fileResolver = new SmbFileResolver("/Multimedia/01_Asia/明日花キララ");
         fileResolver.doEvent4All((file) -> {
             String fileName = file.getName();
-            String newName = geNewName(file);
+            String newName = FileUtil.geNewName(file.getName());
             if (newName == null) {
                 return;
             }
-            System.out.println(fileName + "->" + newName);
+            System.out.println(fileName + "->\n" + newName);
             file.renameTo(SmbFileResolver.newSameLevelSmbFile(file, newName));
         });
     }
 
-    private String geNewName(SmbFile file) {
-        String str2clear = "-";
-        String fileName = file.getName();
-        if (!fileName.contains(str2clear)) {
-            return null;
-        }
-        return fileName.replace(str2clear, "");
+    @Test
+    public void testSingleRenameHtml() throws Exception {
+        SmbFileResolver fileResolver = new SmbFileResolver("/Multimedia/01_Asia/hunta");
+        fileResolver.doEvent4All((file) -> {
+            String fileName = file.getName();
+            try {
+                String newName = new SingleHtmlResolver(fileName).getName(fileName);
+                if (newName == null) {
+                    return;
+                }
+                System.out.println(fileName + "->\n" + newName);
+                file.renameTo(SmbFileResolver.newSameLevelSmbFile(file, newName));
+            } catch (HttpStatusException e) {
+                System.out.println(e.getStatusCode() + ":" + e.getUrl());
+            } catch (Exception e) {
+//                e.printStackTrace();
+                System.out.println(e.getMessage());
+            }
+        });
     }
 
     public static void main(String[] args) throws Exception {

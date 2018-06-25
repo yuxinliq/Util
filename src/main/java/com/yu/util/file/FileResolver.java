@@ -1,10 +1,7 @@
 package com.yu.util.file;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 
 public class FileResolver {
     private String baseDir;
@@ -12,7 +9,7 @@ public class FileResolver {
     private boolean isTest;
 
     public FileResolver(String baseDir) {
-        this.baseDir = baseDir;
+        this.baseDir = baseDir + (baseDir.endsWith("\\") ? "" : "\\");
         File dir = new File(baseDir);
         if (dir.isDirectory() && dir.exists()) {
             doScan(dir);
@@ -43,10 +40,13 @@ public class FileResolver {
         return file.getPath();
     }
 
-    public void showAllFileNames() {
+    public List<String> getAllFileName() {
+        List<String> result = new ArrayList<>();
         for (Map.Entry<String, File> entry : filesMap.entrySet()) {
-            System.out.println(entry.getKey());
+//            System.out.println(entry.getKey());
+            result.add(entry.getValue().getName());
         }
+        return result;
     }
 
     public void doEvent4All(FileEvent event) {
@@ -63,7 +63,7 @@ public class FileResolver {
     }
 
     public interface FileEvent {
-        void doWork(File file);
+        void doWork(File file) throws Exception;
     }
 
     public void addSuffix4All() {
@@ -96,5 +96,15 @@ public class FileResolver {
         } else {
             return newFile;
         }
+    }
+
+    public void moveAll2BaseDir() {
+        this.doEvent4All((file) -> {
+            String newFileName = baseDir + file.getName();
+            if (!file.getPath().equals(newFileName)) {
+                System.out.println(file.getPath() + "\t->\t" + newFileName);
+                file.renameTo(new File(newFileName));
+            }
+        });
     }
 }
