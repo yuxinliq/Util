@@ -1,5 +1,6 @@
 package com.yu.util.file;
 
+import com.baidu.translate.demo.TransApi;
 import jcifs.smb.SmbFile;
 
 import java.io.File;
@@ -8,14 +9,19 @@ import java.util.regex.Pattern;
 
 public class FileUtil {
 
-    public static String geNewName(String fileName) {
-        String[] strings = {".HD", "HD-", "-1080p", "21bt.net-", "HD", "FHD", "Thz.la", "【高清共享】", "中文",
-                "Prestige", "h.m.p", "Kirara Asuka", "明日花キララ ", "明日花キララ-",
-                "[", "]", "()", "_", "- "};
-        String[] regexs = {"[0-9]+_3xplanet_"};
+    public static String excludeTag(String fileName) {
+        String[] strings = {"full", "hd", ".HD", "HD-", "-1080p", "21bt.net-", "FHD", "thz.la", "Thz.la", "【高清共享】", "中文",
+                "Prestige", "h.m.p", "[]", "()", "- "};
+        String[] regexs = {"[0-9]+_3xplanet_", "\\.[0-9]{3,4}p", "whole\\d+"};
         String removeStr = FileUtil.removeStr(fileName, strings);
         String removeRegex = FileUtil.removeRegex(removeStr == null ? fileName : removeStr, regexs);
         return removeRegex == null ? removeStr : removeRegex;
+    }
+
+    public static String transFileName(String fileName) {
+        String fileSuffix = fileName.substring(fileName.lastIndexOf("."));
+        String file2Trans = fileName.substring(0, fileName.lastIndexOf("."));
+        return TransApi.getTransResult(file2Trans, "jp", "zh").getTrans_result() + fileSuffix;
     }
 
     public static String regexNewName(String fileName) {

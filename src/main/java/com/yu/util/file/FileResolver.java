@@ -3,7 +3,7 @@ package com.yu.util.file;
 import java.io.File;
 import java.util.*;
 
-public class FileResolver {
+public class FileResolver extends AbstractFileResolver {
     private String baseDir;
     private LinkedHashMap<String, File> filesMap = new LinkedHashMap<>();
     private boolean isTest;
@@ -51,13 +51,15 @@ public class FileResolver {
 
     public void doEvent4All(FileEvent event) {
         for (File file : filesMap.values()) {
-            try {
-                event.doWork(file);
-                if (isTest) {
-                    break;
+            executor.execute(() -> {
+                try {
+                    event.doWork(file);
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
+            });
+            if (isTest) {
+                break;
             }
         }
     }
@@ -102,8 +104,16 @@ public class FileResolver {
         this.doEvent4All((file) -> {
             String newFileName = baseDir + file.getName();
             if (!file.getPath().equals(newFileName)) {
-                System.out.println(file.getPath() + "\t->\t" + newFileName);
-                file.renameTo(new File(newFileName));
+                File dest = new File(newFileName);
+                if (dest.exists() && !dest.isFile()) {
+                    File tmpDir = new File(baseDir + "tmp/");
+                    if (!tmpDir.exists()) {
+                        tmpDir.mkdirs();
+                    }
+                    dest = new File(baseDir + "tmp/" + file.getName());
+                }
+                System.out.println(file.getPath() + "\t->\t" + dest.getPath());
+                file.renameTo(dest);
             }
         });
     }

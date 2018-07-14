@@ -6,8 +6,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.io.File;
-
 @RunWith(SpringRunner.class)
 public class FileTest {
     @Test
@@ -18,10 +16,10 @@ public class FileTest {
 
     @Test
     public void test2() {
-        FileResolver fileResolver = new FileResolver("E:\\media\\20180623\\RION");
+        FileResolver fileResolver = new FileResolver("E:\\media\\小澤マリア");
         fileResolver.doEvent4All((file) -> {
             String fileName = file.getName();
-            String newName = FileUtil.geNewName(file.getName());
+            String newName = FileUtil.excludeTag(file.getName());
             if (newName == null) {
                 return;
             }
@@ -29,7 +27,6 @@ public class FileTest {
             file.renameTo(FileResolver.newSameLevelFile(file, newName));
         });
     }
-
 
     @Test
     public void testRenameHtml() throws Exception {
@@ -47,22 +44,23 @@ public class FileTest {
     }
 
     @Test
-    public void testSingleRenameHtml() throws Exception {
-        FileResolver fileResolver = new FileResolver("F:\\20180625");
+    public void testSingleRenameHtml() {
+        FileResolver fileResolver = new FileResolver("E:\\media\\hunt\\undo");
         fileResolver.doEvent4All((file) -> {
             String fileName = file.getName();
-            String newName = new SingleHtmlResolver(fileName).getName(fileName);
+            String newName = new SingleHtmlResolver(fileName).getName(fileName, true, true);
             if (newName == null) {
                 return;
             }
-            System.out.println(fileName + "->\n" + newName);
+            System.out.println(fileName + "->\n" + newName + "\n");
             file.renameTo(FileResolver.newSameLevelFile(file, newName));
         });
+        fileResolver.waitUtilOver();
     }
 
     @Test
     public void testMove() {
-        FileResolver fileResolver = new FileResolver("E:\\media\\20180623\\RION");
+        FileResolver fileResolver = new FileResolver("E:\\media\\倉多まお");
         fileResolver.moveAll2BaseDir();
     }
 

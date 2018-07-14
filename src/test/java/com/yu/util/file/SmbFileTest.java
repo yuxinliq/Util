@@ -1,13 +1,10 @@
 package com.yu.util.file;
 
 import com.yu.util.xml.SingleHtmlResolver;
-import jcifs.smb.SmbFile;
 import org.jsoup.HttpStatusException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringRunner;
-
-import static com.yu.util.file.FileUtil.removeStr;
 
 @RunWith(SpringRunner.class)
 public class SmbFileTest {
@@ -25,10 +22,10 @@ public class SmbFileTest {
 
     @Test
     public void testRename() throws Exception {
-        SmbFileResolver fileResolver = new SmbFileResolver("/Multimedia/01_Asia/明日花キララ");
+        SmbFileResolver fileResolver = new SmbFileResolver("/Multimedia/01_Asia/01_单人");
         fileResolver.doEvent4All((file) -> {
             String fileName = file.getName();
-            String newName = FileUtil.geNewName(file.getName());
+            String newName = FileUtil.excludeTag(file.getName());
             if (newName == null) {
                 return;
             }
@@ -39,7 +36,7 @@ public class SmbFileTest {
 
     @Test
     public void testSingleRenameHtml() throws Exception {
-        SmbFileResolver fileResolver = new SmbFileResolver("/Multimedia/01_Asia/hunta");
+        SmbFileResolver fileResolver = new SmbFileResolver("/Multimedia/01_Asia/01_单人");
         fileResolver.doEvent4All((file) -> {
             String fileName = file.getName();
             try {
@@ -50,10 +47,9 @@ public class SmbFileTest {
                 System.out.println(fileName + "->\n" + newName);
                 file.renameTo(SmbFileResolver.newSameLevelSmbFile(file, newName));
             } catch (HttpStatusException e) {
-                System.out.println(e.getStatusCode() + ":" + e.getUrl());
+                System.err.println(e.getStatusCode() + ":" + e.getUrl());
             } catch (Exception e) {
-//                e.printStackTrace();
-                System.out.println(e.getMessage());
+                System.err.println(e.getMessage());
             }
         });
     }

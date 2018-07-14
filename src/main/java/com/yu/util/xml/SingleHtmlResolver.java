@@ -13,14 +13,10 @@ public class SingleHtmlResolver extends AbstractHtmlResolver {
     public static final String BASE_SITE = "https://www.javbus8.pw/";
 
     public SingleHtmlResolver(String fileName) throws Exception {
-        Pattern p = Pattern.compile("([A-Za-z]+)\\-?([0-9]+)");
-        Matcher m = p.matcher(fileName);
-        if (!m.find()) {
-            throw new RuntimeException("unMatchedFileName:" + fileName);
-        }
+        NameKey nameKey = new NameKey(fileName);
         Video video = new Video();
-        video.setKey(m.group(1).toUpperCase() + "-" + getNum(m.group(2)));
-        URL url = new URL(BASE_SITE + video.getKey());
+        video.setKey(nameKey.key);
+        URL url = new URL(BASE_SITE + nameKey.key);
         Document document = Jsoup.parse(url, 10000);
         Elements infos = document.select(".container h3");
         String originName = infos.text();
@@ -28,20 +24,6 @@ public class SingleHtmlResolver extends AbstractHtmlResolver {
         Elements actors = document.select(".container ul li");
         video.setActors(Arrays.asList(actors.text().split("\\s+")));
         this.map.put(video.getKey(), video);
-    }
-
-    private String getNum(String num) {
-        if (num.length() <= 3 || !num.startsWith("0")) {
-            return num;
-        }
-        String result = num.substring(num.lastIndexOf("0") + 1, num.length());
-        if (result.length() >= 3) {
-            return result;
-        }
-        for (int i = 0; i < 3 - result.length(); i++) {
-            result += "0";
-        }
-        return result;
     }
 
     @Override
