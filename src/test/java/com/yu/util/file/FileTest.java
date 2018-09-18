@@ -2,16 +2,22 @@ package com.yu.util.file;
 
 import com.yu.util.xml.HtmlFileResolver;
 import com.yu.util.xml.SingleHtmlResolver;
+import org.jsoup.HttpStatusException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import java.util.List;
 
 @RunWith(SpringRunner.class)
 public class FileTest {
     @Test
     public void test() {
-        FileResolver fileResolver = new FileResolver("E:\\media\\君島みお\\1");
-        fileResolver.getAllFileName();
+        FileResolver fileResolver = new FileResolver("E:\\media\\");
+        List<String> allFileName = fileResolver.getAllFileName();
+        for (String s : allFileName) {
+            System.out.println(s);
+        }
     }
 
     @Test
@@ -45,22 +51,27 @@ public class FileTest {
 
     @Test
     public void testSingleRenameHtml() {
-        FileResolver fileResolver = new FileResolver("E:\\media\\hunt\\undo");
+        FileResolver fileResolver = new FileResolver("E:\\media\\20180902");
         fileResolver.doEvent4All((file) -> {
-            String fileName = file.getName();
-            String newName = new SingleHtmlResolver(fileName).getName(fileName, true, true);
-            if (newName == null) {
-                return;
+            try {
+                String fileName = file.getName();
+                String newName = new SingleHtmlResolver(fileName).getName(fileName, true, true);
+                if (newName == null) {
+                    return;
+                }
+                System.out.println(fileName + "->\n" + newName + "\n");
+                file.renameTo(FileResolver.newSameLevelFile(file, newName));
+            } catch (HttpStatusException e) {
+                System.err.println(e.getStatusCode() + ":" + e.getUrl());
+            } catch (Exception e) {
+                System.err.println(e.getMessage());
             }
-            System.out.println(fileName + "->\n" + newName + "\n");
-            file.renameTo(FileResolver.newSameLevelFile(file, newName));
         });
-        fileResolver.waitUtilOver();
     }
 
     @Test
     public void testMove() {
-        FileResolver fileResolver = new FileResolver("E:\\media\\倉多まお");
+        FileResolver fileResolver = new FileResolver("E:\\work\\vip视频\\2018期录播视频及资料\\2018年公开课往期录播");
         fileResolver.moveAll2BaseDir();
     }
 

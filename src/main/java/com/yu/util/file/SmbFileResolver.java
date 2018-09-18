@@ -6,7 +6,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Scanner;
 
-public class SmbFileResolver {
+public class SmbFileResolver extends AbstractFileResolver {
     private String baseDir;
     private LinkedHashMap<String, SmbFile> smbFilesMap = new LinkedHashMap<>();
     private boolean isTest;
@@ -16,7 +16,7 @@ public class SmbFileResolver {
     private String password = "18219ooo";//密码
 
     public SmbFileResolver(String baseDir) throws Exception {
-        this.baseDir = "smb://" + username + ":" + password + "@" + host + baseDir + (baseDir.endsWith("/") ? "" : "/");
+        this.baseDir = "smb://" + username + ":" + password + "@" + host + baseDir.replace("\\", "/") + (baseDir.endsWith("/") ? "" : "/");
         SmbFile dir = new SmbFile(this.baseDir);
         if (dir.isDirectory() && dir.exists()) {
             doScan(dir);
@@ -55,15 +55,18 @@ public class SmbFileResolver {
 
     public void doEvent4All(SmbFileEvent event) {
         for (SmbFile SmbFile : smbFilesMap.values()) {
-            try {
-                event.doWork(SmbFile);
-                if (isTest) {
-                    break;
+            executor.execute(() -> {
+                try {
+                    event.doWork(SmbFile);
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
+            });
+            if (isTest) {
+                break;
             }
         }
+        this.waitUtilOver();
     }
 
     public interface SmbFileEvent {

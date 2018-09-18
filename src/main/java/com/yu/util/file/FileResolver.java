@@ -62,6 +62,7 @@ public class FileResolver extends AbstractFileResolver {
                 break;
             }
         }
+        waitUtilOver();
     }
 
     public interface FileEvent {

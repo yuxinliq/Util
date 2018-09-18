@@ -10,7 +10,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class SingleHtmlResolver extends AbstractHtmlResolver {
-    public static final String BASE_SITE = "https://www.javbus8.pw/";
+    public static final String BASE_SITE = "https://www.ojcfdofzbk9yik290l.com/";
 
     public SingleHtmlResolver(String fileName) throws Exception {
         NameKey nameKey = new NameKey(fileName);

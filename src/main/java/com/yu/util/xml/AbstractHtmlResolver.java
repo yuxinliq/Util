@@ -1,6 +1,7 @@
 package com.yu.util.xml;
 
 import com.baidu.translate.demo.TransApi;
+import com.yu.util.file.FileUtil;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -73,7 +74,7 @@ public class AbstractHtmlResolver {
                     list.add("..");
                     break;
                 }
-                list.add(actor);
+                list.add(actor.replaceAll("（.+）", ""));
             }
             String result = list.toString().replaceAll("\\s+", "");
             if ("[]".equals(result)) {
@@ -141,22 +142,35 @@ public class AbstractHtmlResolver {
         public String suffix;
 
         public NameKey(String fileName) {
+            fileName = preResolve(fileName);
             if (!parseRider(fileName) && !parseInfantry(fileName)) {
                 throw new RuntimeException("not match:" + fileName);
             }
             this.suffix = fileName.substring(fileName.lastIndexOf("."));
         }
 
+        private String preResolve(String fileName) {
+            String excludeTag = FileUtil.excludeTag(fileName);
+            return excludeTag == null ? fileName : excludeTag;
+        }
+
         private boolean parseRider(String fileName) {
-            Pattern p = Pattern.compile("([A-Za-z2]{2,})\\-?([A-Za-z]?[0-9]{2,})([A-Za-z0-9_\\-]+)?");
+            Pattern p = Pattern.compile("([A-Za-z]{2,})\\-?([A-Za-z]?[0-9]{2,})([A-Za-z0-9_\\-]+)?");
             Matcher m = p.matcher(fileName);
             if (m.find()) {
                 String corpCode = m.group(1).toUpperCase();
-                if (!"RED".equalsIgnoreCase(corpCode)) corpCode += "-";
                 String numCode = m.group(2);
-                if ((!"SOE".equalsIgnoreCase(corpCode) || !"PPSD".equalsIgnoreCase(corpCode)) && numCode.length() > 3)
-                    numCode = numCode.substring(numCode.length() - 3, numCode.length());
-                this.key = corpCode + numCode;
+                if (numCode.length() > 3) {
+                    switch (corpCode) {
+                        case "SOE":
+                        case "PPSD":
+                        case "HODV":
+                            break;
+                        default:
+                            numCode = numCode.substring(numCode.length() - 3, numCode.length());
+                    }
+                }
+                this.key = corpCode + ("RED".equalsIgnoreCase(corpCode) ? "" : "-") + numCode;
                 this.splitIndex = m.group(3) == null ? "" : m.group(3);
                 return true;
             }

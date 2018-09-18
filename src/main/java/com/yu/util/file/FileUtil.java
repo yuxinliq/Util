@@ -10,8 +10,8 @@ import java.util.regex.Pattern;
 public class FileUtil {
 
     public static String excludeTag(String fileName) {
-        String[] strings = {"full", "hd", ".HD", "HD-", "-1080p", "21bt.net-", "FHD", "thz.la", "Thz.la", "【高清共享】", "中文",
-                "Prestige", "h.m.p", "[]", "()", "- "};
+        String[] strings = {"full", "hd", "1080p", "21bt.net", "FHD", "thz.la", "【高清共享】", "中文",
+                "carib", "1pon", "Prestige"};
         String[] regexs = {"[0-9]+_3xplanet_", "\\.[0-9]{3,4}p", "whole\\d+"};
         String removeStr = FileUtil.removeStr(fileName, strings);
         String removeRegex = FileUtil.removeRegex(removeStr == null ? fileName : removeStr, regexs);
@@ -36,8 +36,9 @@ public class FileUtil {
     }
 
     public static String removeStr(String fileName, String... str2clear) {
-        String newName = fileName;
+        String newName = fileName.toUpperCase();
         for (String s : str2clear) {
+            s = s.toUpperCase();
             if (newName.contains(s)) {
                 newName = newName.replace(s, "");
             }

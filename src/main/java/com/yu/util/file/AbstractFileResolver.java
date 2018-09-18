@@ -18,7 +18,7 @@ public class AbstractFileResolver {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-
         }
+        executor.shutdown();
     }
 }

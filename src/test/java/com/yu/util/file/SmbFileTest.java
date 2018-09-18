@@ -36,7 +36,7 @@ public class SmbFileTest {
 
     @Test
     public void testSingleRenameHtml() throws Exception {
-        SmbFileResolver fileResolver = new SmbFileResolver("/Multimedia/01_Asia/01_单人");
+        SmbFileResolver fileResolver = new SmbFileResolver("\\Multimedia\\01_Asia\\篠田步美\\undo");
         fileResolver.doEvent4All((file) -> {
             String fileName = file.getName();
             try {
